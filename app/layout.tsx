@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -36,8 +38,10 @@ export default function RootLayout({
       lang="en"
       className={`${playfair.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#FDFCF9] text-[#1A1A1A]">
+     <body className="min-h-full flex flex-col bg-[#FDFCF9] text-[#1A1A1A]">
+        <Navbar />
         {children}
+        <Footer />
       </body>
     </html>
   );
