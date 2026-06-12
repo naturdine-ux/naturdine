@@ -88,10 +88,10 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between gap-3">
-          <p className="text-xs text-white/40">© 2026 Naturdine. All rights reserved.</p>
-          <p className="text-xs text-white/40">Fulfilled in the USA 🇺🇸</p>
-        </div>
+<div className="border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between gap-3">
+  <p className="text-xs text-white/40">© 2026 Naturdine. All rights reserved.</p>
+  <p className="text-xs text-white/40">Natural cutlery, made with care 🌿</p>
+</div>
       </div>
     </footer>
   );
