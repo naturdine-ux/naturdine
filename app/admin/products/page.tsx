@@ -1,9 +1,9 @@
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import Link from "next/link";
+import ProductActions from "@/components/admin/ProductActions";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Products — Naturdine Admin" };
-
 export const revalidate = 0;
 
 export default async function AdminProductsPage() {
@@ -36,29 +36,25 @@ export default async function AdminProductsPage() {
       </div>
 
       <div className="bg-white rounded-2xl border border-[#EDE8DF] overflow-hidden">
-        {/* Table header */}
         <div className="grid grid-cols-12 gap-4 px-6 py-3 bg-[#F8F4EE] border-b border-[#EDE8DF]">
           <div className="col-span-1" />
-          <div className="col-span-4 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Product</div>
+          <div className="col-span-3 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Product</div>
           <div className="col-span-2 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Category</div>
           <div className="col-span-2 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Price</div>
           <div className="col-span-1 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Featured</div>
           <div className="col-span-1 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Status</div>
-          <div className="col-span-1 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Actions</div>
+          <div className="col-span-2 text-xs font-bold uppercase tracking-widest text-[#6B6560]">Actions</div>
         </div>
 
-        {/* Rows */}
         {products?.map((product) => (
           <div
             key={product.id}
             className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#EDE8DF] last:border-0 items-center hover:bg-[#FDFCF9] transition-colors"
           >
             <div className="col-span-1 text-2xl">{product.emoji}</div>
-            <div className="col-span-4">
+            <div className="col-span-3">
               <p className="text-sm font-semibold text-[#1A1A1A]">{product.name}</p>
-              <p className="text-xs text-[#6B6560] mt-0.5 truncate max-w-[200px]">
-                /{product.slug}
-              </p>
+              <p className="text-xs text-[#6B6560] mt-0.5 truncate">/{product.slug}</p>
             </div>
             <div className="col-span-2">
               <span className="text-xs bg-[#F8F4EE] text-[#6B6560] px-2 py-1 rounded-full">
@@ -78,13 +74,8 @@ export default async function AdminProductsPage() {
                 {product.is_active ? "Active" : "Hidden"}
               </span>
             </div>
-            <div className="col-span-1">
-              <Link
-                href={`/admin/products/${product.id}/edit`}
-                className="text-xs font-semibold text-[#2C4A1E] hover:underline"
-              >
-                Edit
-              </Link>
+            <div className="col-span-2">
+              <ProductActions id={product.id} isActive={product.is_active} />
             </div>
           </div>
         ))}
