@@ -11,7 +11,6 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-
   const { data: post } = await supabase
     .from("blog_posts")
     .select("*")
@@ -21,11 +20,13 @@ export async function generateMetadata({
   if (!post) return {};
 
   return {
-    title: `${post.title} — Naturdine Journal`,
-    description: post.excerpt,
+    title: post.meta_title || `${post.title} — Naturdine Journal`,
+    description: post.meta_description || post.excerpt,
+    keywords: post.keywords || undefined,
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: post.meta_title || post.title,
+      description: post.meta_description || post.excerpt,
+      images: post.og_image ? [post.og_image] : [],
     },
   };
 }
@@ -35,33 +36,8 @@ export async function generateStaticParams() {
     .from("blog_posts")
     .select("slug")
     .eq("is_published", true);
-
   return posts?.map((p) => ({ slug: p.slug })) ?? [];
 }
-
-const BLOG_CONTENT: Record<string, string[]> = {
-  "best-bamboo-cutlery-sets-2026": [
-    "Making a genuine change to a plastic-free kitchen starts with the things you use every single day. Cutlery is used three times a day, touched before every meal, and usually outlives most other items in the kitchen.",
-    "Bamboo and wood have been used for eating utensils for thousands of years across Asia, Africa, and South America. They are naturally antimicrobial, warm to the touch, and require far less energy to produce than stainless steel or plastic.",
-    "The key thing to look for when buying wooden or bamboo cutlery is the finish. Avoid anything with a painted or lacquered coating that might chip. The best pieces use a natural beeswax or food-grade oil finish — safe, durable, and renewable.",
-    "After six months of daily use, a good bamboo set should look essentially the same as when you bought it. A monthly light oiling with coconut oil keeps the bamboo from drying out. That is the full maintenance routine.",
-    "Our top pick remains a full family set — knife, fork, spoon, and chopsticks for each person, packaged in a way that makes it a genuinely good gift. The quality difference between a well-made bamboo set and a cheap one is immediately obvious when you hold both.",
-  ],
-  "why-switch-wooden-flatware": [
-    "The most obvious reason to switch is the environmental one. Plastic cutlery, even when washed and reused, degrades over time and eventually ends up in landfill. Bamboo and wood are fully compostable at end of life.",
-    "What surprises most people is the feel. Wood and bamboo are warm materials — they do not conduct heat the way metal does, so they are comfortable to hold even when eating hot food. Many people find they simply prefer the experience.",
-    "Bamboo is naturally antimicrobial. Studies have shown that bacteria introduced to bamboo surfaces die off significantly faster than on plastic surfaces. This is not a marketing claim — it is a property of the material itself.",
-    "Wooden and bamboo cutlery is also lighter than stainless steel, which makes it ideal for travel, packed lunches, and picnics. A travel set that fits in a small pouch and weighs almost nothing is genuinely useful.",
-    "Finally, there is the aesthetic argument. A bamboo cutlery set on a table looks considered and intentional. It signals that you care about what you eat and how you eat it. That is worth something.",
-  ],
-  "eco-kitchen-guide-2026": [
-    "The kitchen is the room in the house with the most plastic, the most waste, and therefore the most opportunity for meaningful change. But trying to change everything at once is the fastest way to give up entirely.",
-    "Start with the things you replace most often. Disposable plastic cutlery, plastic wrap, and single-use containers are the obvious targets. Replacing them with durable, natural alternatives is a one-time purchase that pays for itself quickly.",
-    "Cutlery is the easiest switch. A single bamboo cutlery set will outlast dozens of plastic alternatives and costs less over time. It is also the most visible change — something you interact with at every meal.",
-    "Storage is the next area to address. Glass and stainless steel containers have improved dramatically in recent years. They are lighter, cheaper, and more widely available than even five years ago.",
-    "The final piece is cleaning products. Most conventional dish soap and cleaning products come in single-use plastic bottles. Concentrated refillable options are now available from most supermarkets and work just as well.",
-  ],
-};
 
 export default async function BlogPostPage({
   params,
@@ -79,9 +55,10 @@ export default async function BlogPostPage({
 
   if (!post) notFound();
 
-  const paragraphs = BLOG_CONTENT[slug] ?? [
-    "This article is coming soon. Check back shortly for the full content.",
-  ];
+  // Split content into paragraphs by newline
+  const paragraphs = post.content
+    ? post.content.split("\n").filter((p: string) => p.trim() !== "")
+    : [post.excerpt];
 
   return (
     <main>
@@ -123,13 +100,21 @@ export default async function BlogPostPage({
         </div>
 
         {/* Cover image */}
-        <div className="bg-[#F8F4EE] rounded-2xl h-64 flex items-center justify-center text-8xl mb-10">
-          🌿
-        </div>
+        {post.cover_image ? (
+          <img
+            src={post.cover_image}
+            alt={post.title}
+            className="w-full h-64 object-cover rounded-2xl mb-10"
+          />
+        ) : (
+          <div className="bg-[#F8F4EE] rounded-2xl h-64 flex items-center justify-center text-8xl mb-10">
+            🌿
+          </div>
+        )}
 
         {/* Content */}
         <div className="space-y-6">
-          {paragraphs.map((para, i) => (
+          {paragraphs.map((para: string, i: number) => (
             <p key={i} className="text-[#6B6560] leading-[1.85] text-base">
               {para}
             </p>
@@ -164,10 +149,7 @@ export default async function BlogPostPage({
 
         {/* Back link */}
         <div className="mt-10">
-          <Link
-            href="/blog"
-            className="text-sm font-semibold text-[#2C4A1E] hover:underline"
-          >
+          <Link href="/blog" className="text-sm font-semibold text-[#2C4A1E] hover:underline">
             ← Back to Journal
           </Link>
         </div>
